@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-import json
-import math
-import codecs
 import scipy
 def matrix_from_tuple_list(graph_tuple):
     """ takes graph as tuple as argument,
@@ -59,32 +55,28 @@ def graph_connected_components(graph_mat):
        list_of_comp - list of components, list_of_comp[i] - list of node numbers in (i-1)-th component"""
     component_of_graph = scipy.zeros(graph_mat.shape[0],dtype = scipy.int8) # component_of_graph[i] is the number of component of i-th node.
     cur_comp = 1 #the number of current component (see below)
-    tmp_nodes_to_process = [scipy.nonzero(component_of_graph==0)[0][0]] #node indexes to process
+    try:
+        tmp_nodes_to_process = [scipy.nonzero(component_of_graph==0)[0][0]] #node indexes to process
+    except IndexError:
+            #exceptional situation, when graph_mat is empty
+            return []
+
     #kind of breadth first search
     while(len(tmp_nodes_to_process)>0): #while there is nodes to process
         cur_node = tmp_nodes_to_process.pop() #take one from array
         lnodes_numbers = scipy.nonzero(graph_mat[cur_node,:])[0] #take indexes of all of it linked nodes
         #and choose that corresponds to the non processed nodes of them, the node is non processed if its component is zero
         lnodes_numbers = scipy.extract(component_of_graph[lnodes_numbers] == 0,lnodes_numbers)
-        tmp_nodes_to_process +=lnodess_numbers.tolist()
+        tmp_nodes_to_process +=lnodes_numbers.tolist()
         component_of_graph[lnodes_numbers] = cur_comp
         # if there is no linked nodes, start processing of new connected component, and next unprocessed node
         if (len(tmp_nodes_to_process) == 0):
             cur_comp+=1
-            tmp_nodes_to_process = [scipy.nonzero(component_of_graph==0)[0][0]] 
+            tmp_arr = scipy.nonzero(component_of_graph==0)[0]
+            if (len(tmp_arr)>0):tmp_nodes_to_process = [tmp_arr[0]] 
 
     list_of_comp = [] #collect list
-    for i in range(cur_comp):
-        list_of_comp+=[scipy.nonzero(component_of_graph==i)[0].tolist()]
+    for i in range(cur_comp+1):
+        tmp_arr=scipy.nonzero(component_of_graph==(i+1))[0].tolist()
+        if (len(tmp_arr)>0):list_of_comp+=[tmp_arr]
     return list_of_comp
-with open('graph.json','r') as jg:
-        graph_tup = json.load(jg)
-center_id = 15362492 #central node FIXME
-graph_mat,uids = matrix_from_tuple_list(graph_tup)
-subgraph,sub_uids = subgraph_with_center(graph_mat,uids,center_num)
-#remove center from subgraph
-cnum = scipy.nonzero(uids==center_id)[0][0]
-subgraph = scipy.delete(scipy.delete(subgraph,cnum,0),cnum,1)
-sub_uids = scipy.delete(sub_uids,cnum,0)
-
-print (len(center_friends_num))
