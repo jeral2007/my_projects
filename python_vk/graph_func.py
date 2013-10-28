@@ -1,3 +1,4 @@
+
 import scipy
 def matrix_from_tuple_list(graph_tuple):
     """ takes graph as tuple as argument,
@@ -30,6 +31,17 @@ def matrix_from_tuple_list(graph_tuple):
             graph_mat[node_numbers[a],node_numbers[b]] = 1
     return (graph_mat,scipy.array(uids))
 
+def tuple_list_from_matrix(graph_mat,uids):
+    """ takes graph as graph_mat matrix and uids list as arguments
+    returns graph_tuple, which is representation of the graph as list of tuple. This is inverse function for matrix_from_tuple_list, in sense that
+    matrix_from_tuple_list(tuple_list_from_matrix(graph)) ~ graph, and
+    tuple_list_from_matrix(matrix_from_tuple_list(graph)) ~ graph (not strictly equal because elements maybe rearranged"""
+    tuple_list = []
+    for i in xrange(graph_mat.shape[0]):
+            indexes = scipy.nonzero(graph_mat[i,:])[0] #list of nodes connected with i-th
+            tuple_list+=[(uids[i],j) for j in uids[indexes]]
+    return tuple_list
+
 def subgraph_with_center(graph_mat, uids, center_num):
     """takes number of center node, and returns new subgraph, that consists of all nodes connected with center.
         
@@ -39,9 +51,8 @@ def subgraph_with_center(graph_mat, uids, center_num):
 
         output:
         subgraph,sub_uids - subgraph description as matrix (see matrix_from_tuple_list doc for details)"""
-    center_num = scipy.nonzero(uids==center_id)[0][0]
     center_friends_num = scipy.nonzero(graph_mat[center_num,:] == 1)[0] #indexes of friends of central node including itself
-    subgraph = graph_mat[center_friends_num,center_friends_num] # we consider part of graph which consists of friends of center only 
+    subgraph = graph_mat[center_friends_num,:][:,center_friends_num] # FIXME we consider part of graph which consists of friends of center only 
     sub_uids = uids[center_friends_num]
     return (subgraph,sub_uids)
 
@@ -80,3 +91,4 @@ def graph_connected_components(graph_mat):
         tmp_arr=scipy.nonzero(component_of_graph==(i+1))[0].tolist()
         if (len(tmp_arr)>0):list_of_comp+=[tmp_arr]
     return list_of_comp
+
