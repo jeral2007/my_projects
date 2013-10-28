@@ -3,9 +3,12 @@ import urllib
 import urllib2
 import codecs
 import json
-calls = [0]
-stat_friend = {'n':0,'avg':0,'d2':0} # statistics
-
+import argparse
+parser  = argparse.ArgumentParser()
+parser.add_argument('uid',type = int, help = "id of user for which graph is to be constructed")
+parser.add_argument('friends_json',type = str,help = "friends filename, in this filename info of friends of the user will be saved in json format")
+parser.add_argument('graph_json',type = str, help = "the graph filename, here graph will be saved in json format")
+args = parser.parse_args()
 def get_friends(uid):
         """takes user id and returns list of friends ids, if uid corresponding to the banned user, empty list is returned
         Example:
@@ -43,19 +46,13 @@ def process_uid(uid,processed_uids,graph,maxdepth):
                 if (maxdepth>1 and processed_uids[friend['uid']]['depth']<maxdepth-1):
                         process_uid(friend['uid'],processed_uids,graph,maxdepth-1)
 
-#my_uid = 568716 #my vk uid
-my_uid = 15362492 #FIXME
+my_uid = args.uid
 graph = []
 me = get_user(my_uid)
 processed_friends = {my_uid:{'first_name':me['first_name'],'last_name':me['last_name']}}
 process_uid(my_uid,processed_friends,graph,2)
-print (calls[0])
-with codecs.open('friends.txt','w', encoding='utf-8') as ff:
-    for uid in processed_friends.keys():
-        tmp  = 0.0
-        ff.write(u'{0} - {1} {2}\n'.format(uid,processed_friends[uid]['first_name'], processed_friends[uid]['last_name']))
 ind = 0
-with open('friends.json','w') as jf:
+with open(args.friends_json,'w') as jf:
         json.dump(processed_friends,jf)
-with open('graph.json','w') as fg:
+with open(args.graph_json,'w') as fg:
         json.dump(graph,fg)
