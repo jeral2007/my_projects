@@ -6,6 +6,9 @@ import scipy
 from graph_func import *
 def graphviz_string(graph_tup,graph_name,process_uid):
     result  = u"subgraph cluster_{0} {{\n".format(graph_name)
+    if (len(graph_tup) ==1):
+            result+="style = filled\n fillcolor = gray \n"
+            
     for (a,b) in graph_tup:
         if (a!=b):
            result+=u"{0} -- {1};\n".format(process_uid(a),process_uid(b))
@@ -20,7 +23,7 @@ with open('friends.json','r') as jf:
 center_id = 15362492 #central node FIXME
 graph_mat,uids = matrix_from_tuple_list(graph_tup)
 center_num = scipy.nonzero(uids==center_id)[0][0]
-subgraph,sub_uids = subgraph_with_center(graph_mat,uids,center_num)
+subgraph,sub_uids = subgraph_with_center(graph_mat,uids,center_id)
 print (subgraph.shape,graph_mat.shape)
 #remove center from subgraph
 cnum = scipy.nonzero(uids==center_id)[0][0]
@@ -32,13 +35,13 @@ subgraph = subgraph + scipy.transpose(subgraph)
 con_comps = graph_connected_components(subgraph)
 
 i=0
-header = "graph sd {\n" #dotfile header FIXME
+header = "graph sd {\n fontsize=8 \n" #dotfile header FIXME
 with codecs.open('graph.dot','w',encoding='utf-8') as fd:
     fd.write(header)
     for nodes in con_comps:
         i+=1
         cc = (subgraph[nodes,:][:,nodes],sub_uids[nodes]) # FIXME connected component subgraph in matrix form
         tmp_g = [ edge for edge in tuple_list_from_matrix(cc[0],cc[1]) if (edge[0]<=edge[1])]
-        fd.write(graphviz_string(tmp_g,'g'+str(i),lambda uid:'"'+pfr[str(uid)]['first_name']+u' '+pfr[str(uid)]['last_name']+'"' ))
+        fd.write(graphviz_string(tmp_g,'g'+str(i),lambda uid:'"'+pfr[str(uid)]['first_name']+u' '+pfr[str(uid)]['last_name']+' '+ str(uid)+'"' ))
     fd.write("}\n")
 

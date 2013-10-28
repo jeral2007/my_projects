@@ -33,13 +33,15 @@ def process_uid(uid,processed_uids,graph,maxdepth):
         friends_of_uid = get_friends(uid)
         #statistics
         tmp   = len(friends_of_uid)
+        processed_uids[uid]['depth'] = maxdepth
         for friend in friends_of_uid:
                 graph+=[(uid,friend['uid'])]
                 if friend['uid'] not in processed_uids.keys():
                         processed_uids[friend['uid']]={field:friend[field] for field in ['first_name','last_name']}
                         processed_uids[uid]['friend_num'] = len(friends_of_uid)
-                        if (maxdepth>1):
-                            process_uid(friend['uid'],processed_uids,graph,maxdepth-1)
+                        processed_uids[friend['uid']]['depth'] = -2
+                if (maxdepth>1 and processed_uids[friend['uid']]['depth']<maxdepth-1):
+                        process_uid(friend['uid'],processed_uids,graph,maxdepth-1)
 
 #my_uid = 568716 #my vk uid
 my_uid = 15362492 #FIXME

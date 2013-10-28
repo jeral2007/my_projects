@@ -42,19 +42,20 @@ def tuple_list_from_matrix(graph_mat,uids):
             tuple_list+=[(uids[i],j) for j in uids[indexes]]
     return tuple_list
 
-def subgraph_with_center(graph_mat, uids, center_num):
+def subgraph_with_center(graph_mat, node_names, center_name):
     """takes number of center node, and returns new subgraph, that consists of all nodes connected with center.
         
         arguments:
-        graph_mat,uids - graph description as matrix (see matrix_from_tuple_list doc for details)
-        center_num - number of center node
+        graph_mat,node_names - graph description as matrix (see matrix_from_tuple_list doc for details)
+        center_num - name of the center node
 
         output:
-        subgraph,sub_uids - subgraph description as matrix (see matrix_from_tuple_list doc for details)"""
-    center_friends_num = scipy.nonzero(graph_mat[center_num,:] == 1)[0] #indexes of friends of central node including itself
-    subgraph = graph_mat[center_friends_num,:][:,center_friends_num] # FIXME we consider part of graph which consists of friends of center only 
-    sub_uids = uids[center_friends_num]
-    return (subgraph,sub_uids)
+        subgraph,sub_node_names - subgraph description as matrix (see matrix_from_tuple_list doc for details)"""
+    center_num = scipy.nonzero(node_names==center_name)[0][0]
+    center_friends_num = scipy.nonzero(graph_mat[center_num,:])[0] #indexes of nodes that linked with  central node including itself
+    subgraph = graph_mat[center_friends_num,:][:,center_friends_num] # FIXME we consider part of graph which consists of nodes linked with center only 
+    sub_node_names = node_names[center_friends_num]
+    return (subgraph,sub_node_names)
 
 def graph_connected_components(graph_mat):
     """takes graph as matrix and return list of connected components
